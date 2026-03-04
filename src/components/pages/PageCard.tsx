@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { MemberAvatars } from "@/components/groups/MemberAvatars";
 import { PageCover } from "@/components/pages/PageCover";
+import { Badge } from "@/components/ui/badge";
 
 interface Member {
   id: string;
@@ -15,6 +16,7 @@ interface PageCardProps {
     title: string;
     description?: string | null;
     pictureUrl?: string | null;
+    label?: { id: string; name: string } | null;
     pageGroups?: {
       group: {
         memberships?: { user: Member }[];
@@ -50,6 +52,9 @@ export function PageCard({ page }: PageCardProps) {
         {/* Content below */}
         <div className="p-3 flex flex-col gap-1 flex-1">
           <p className="font-semibold line-clamp-1 text-sm">{page.title}</p>
+          {page.label && (
+            <Badge variant="outline" className="text-xs w-fit">{page.label.name}</Badge>
+          )}
           {page.description && (
             <p className="text-xs text-muted-foreground line-clamp-2">{page.description}</p>
           )}

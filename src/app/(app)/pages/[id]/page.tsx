@@ -9,6 +9,7 @@ import { PageCard } from "@/components/pages/PageCard";
 import { PageCover } from "@/components/pages/PageCover";
 import { AddSubPageButton } from "@/components/pages/AddSubPageButton";
 import { ManageGroupsButton } from "@/components/pages/ManageGroupsButton";
+import { EditLabelButton } from "@/components/pages/EditLabelButton";
 import { Badge } from "@/components/ui/badge";
 import { ChevronRight } from "lucide-react";
 
@@ -35,6 +36,7 @@ async function getPage(id: string) {
         },
       },
       creator: { columns: { id: true, name: true, pictureUrl: true } },
+      label: { columns: { id: true, name: true } },
       pageGroups: {
         with: {
           group: {
@@ -105,6 +107,9 @@ export default async function PageDetailPage({ params }: { params: Promise<{ id:
               <p className="text-muted-foreground mt-1">{page.description}</p>
             )}
           </div>
+
+          {/* Label */}
+          <EditLabelButton pageId={page.id} label={page.label ?? null} />
 
           {/* Linked groups */}
           <div className="flex flex-wrap items-center gap-2">

@@ -17,6 +17,8 @@ const client =
   postgres(connectionString, {
     prepare: !isTransactionPooler,
     connect_timeout: 10,
+    idle_timeout: 30,   // recycle idle connections after 30s
+    max_lifetime: 300,  // recycle connections after 5 min
     max: 3,
   });
 

@@ -6,12 +6,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { LabelCombobox } from "@/components/pages/LabelCombobox";
 import { toast } from "sonner";
+
+interface LabelOption {
+  id: string;
+  name: string;
+}
 
 export default function NewPagePage() {
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [selectedLabel, setSelectedLabel] = useState<LabelOption | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -21,7 +28,7 @@ export default function NewPagePage() {
     const res = await fetch("/api/pages", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, description }),
+      body: JSON.stringify({ title, description, labelId: selectedLabel?.id, labelName: selectedLabel?.name }),
     });
 
     if (!res.ok) {
@@ -61,6 +68,10 @@ export default function NewPagePage() {
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="What is this page about?"
               />
+            </div>
+            <div className="space-y-2">
+              <Label>Label</Label>
+              <LabelCombobox value={selectedLabel} onChange={setSelectedLabel} />
             </div>
             <div className="flex gap-3 pt-2">
               <Button type="submit" disabled={loading}>

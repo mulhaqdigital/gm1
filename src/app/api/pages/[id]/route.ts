@@ -1,8 +1,17 @@
 import { db } from "@/db";
-import { pages, pageGroups, groupMemberships } from "@/db/schema";
+import { pages, pageGroups, groupMemberships, labels } from "@/db/schema";
 import { eq, sql } from "drizzle-orm";
 import { ok, err, parseBody } from "@/lib/api";
 import { requireAuth, isSiteAdmin } from "@/lib/permissions";
+
+async function resolveLabel(labelId?: string, labelName?: string): Promise<string> {
+  if (labelId) return labelId;
+  const name = labelName?.trim() || "Unlabeled";
+  const existing = await db.query.labels.findFirst({ where: eq(labels.name, name) });
+  if (existing) return existing.id;
+  const [created] = await db.insert(labels).values({ name }).returning();
+  return created.id;
+}
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -16,6 +25,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
         columns: { id: true, title: true, pictureUrl: true, sortOrder: true },
       },
       creator: { columns: { id: true, name: true, pictureUrl: true } },
+      label: { columns: { id: true, name: true } },
       pageGroups: {
         with: {
           group: {
@@ -52,7 +62,14 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       description?: string;
       pictureUrl?: string;
       groupIds?: string[];
+      labelId?: string;
+      labelName?: string;
     }>(req);
+
+    const labelUpdate: { labelId?: string } = {};
+    if (body.labelId !== undefined || body.labelName !== undefined) {
+      labelUpdate.labelId = await resolveLabel(body.labelId, body.labelName);
+    }
 
     const [updated] = await db
       .update(pages)
@@ -60,6 +77,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
         ...(body.title && { title: body.title }),
         ...(body.description !== undefined && { description: body.description }),
         ...(body.pictureUrl !== undefined && { pictureUrl: body.pictureUrl }),
+        ...labelUpdate,
       })
       .where(eq(pages.id, id))
       .returning();

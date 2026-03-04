@@ -67,10 +67,20 @@ export const pages = pgTable("pages", {
   pictureUrl: text("picture_url"),
   parentPageId: uuid("parent_page_id"), // self-reference added via relations
   sortOrder: integer("sort_order").default(0).notNull(),
+  labelId: uuid("label_id").references(() => labels.id),
   createdBy: uuid("created_by").references(() => profiles.id),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),
+});
+
+// ------------------------------------------------------------------
+// Labels
+// ------------------------------------------------------------------
+export const labels = pgTable("labels", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull().unique(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 // ------------------------------------------------------------------
@@ -109,10 +119,15 @@ export const groupMembershipsRelations = relations(groupMemberships, ({ one }) =
   group: one(groups, { fields: [groupMemberships.groupId], references: [groups.id] }),
 }));
 
+export const labelsRelations = relations(labels, ({ many }) => ({
+  pages: many(pages),
+}));
+
 export const pagesRelations = relations(pages, ({ one, many }) => ({
   parent: one(pages, { fields: [pages.parentPageId], references: [pages.id], relationName: "pageHierarchy" }),
   children: many(pages, { relationName: "pageHierarchy" }),
   creator: one(profiles, { fields: [pages.createdBy], references: [profiles.id] }),
+  label: one(labels, { fields: [pages.labelId], references: [labels.id] }),
   pageGroups: many(pageGroups),
 }));
 
@@ -129,6 +144,7 @@ export type Group = typeof groups.$inferSelect;
 export type GroupMembership = typeof groupMemberships.$inferSelect;
 export type Page = typeof pages.$inferSelect;
 export type PageGroup = typeof pageGroups.$inferSelect;
+export type Label = typeof labels.$inferSelect;
 
 export type NewGroup = typeof groups.$inferInsert;
 export type NewPage = typeof pages.$inferInsert;

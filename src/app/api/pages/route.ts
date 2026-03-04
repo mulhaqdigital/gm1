@@ -1,8 +1,17 @@
 import { db } from "@/db";
-import { pages } from "@/db/schema";
-import { isNull, desc } from "drizzle-orm";
+import { pages, labels } from "@/db/schema";
+import { isNull, desc, eq } from "drizzle-orm";
 import { ok, err, parseBody } from "@/lib/api";
 import { requireAuth } from "@/lib/permissions";
+
+async function resolveLabel(labelId?: string, labelName?: string): Promise<string> {
+  if (labelId) return labelId;
+  const name = labelName!.trim();
+  const existing = await db.query.labels.findFirst({ where: eq(labels.name, name) });
+  if (existing) return existing.id;
+  const [created] = await db.insert(labels).values({ name }).returning();
+  return created.id;
+}
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -22,6 +31,7 @@ export async function GET(req: Request) {
     orderBy: [desc(pages.sortOrder), desc(pages.createdAt)],
     with: {
       children: { columns: { id: true, title: true, pictureUrl: true } },
+      label: { columns: { id: true, name: true } },
       pageGroups: {
         with: { group: { columns: { id: true, name: true, logoUrl: true } } },
       },
@@ -38,9 +48,16 @@ export async function POST(req: Request) {
       description?: string;
       pictureUrl?: string;
       parentPageId?: string;
+      labelId?: string;
+      labelName?: string;
     }>(req);
 
     if (!body.title?.trim()) return err("Title is required", 400);
+
+    const resolvedLabelId =
+      body.labelId || body.labelName
+        ? await resolveLabel(body.labelId, body.labelName)
+        : undefined;
 
     const [page] = await db
       .insert(pages)
@@ -49,6 +66,7 @@ export async function POST(req: Request) {
         description: body.description,
         pictureUrl: body.pictureUrl,
         parentPageId: body.parentPageId ?? null,
+        labelId: resolvedLabelId ?? null,
         createdBy: userId,
       })
       .returning();
