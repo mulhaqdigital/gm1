@@ -161,7 +161,7 @@ export default function GroupPage() {
               </h2>
               <LinkPageButton
                 groupId={id}
-                linkedPageIds={group.pageGroups.map((pg: any) => pg.page.id)}
+                linkedPages={group.pageGroups.map((pg: any) => ({ id: pg.page.id, title: pg.page.title }))}
               />
             </div>
           {group.pageGroups?.length === 0 && (

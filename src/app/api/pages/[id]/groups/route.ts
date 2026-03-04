@@ -26,6 +26,25 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   }
 }
 
+// Remove a single group link
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await params;
+    await requireAuth();
+
+    const body = await parseBody<{ groupId: string }>(req);
+    if (!body.groupId) return err("groupId is required", 400);
+
+    await db.delete(pageGroups).where(
+      and(eq(pageGroups.pageId, id), eq(pageGroups.groupId, body.groupId))
+    );
+
+    return ok({ success: true });
+  } catch (res) {
+    return res as Response;
+  }
+}
+
 // Add a single group link — any authenticated user
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {

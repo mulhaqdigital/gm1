@@ -36,7 +36,7 @@ export default async function PagesPage() {
           No pages yet.
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {pageList.map((page) => (
             <PageCard key={page.id} page={page} />
           ))}
