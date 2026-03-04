@@ -2,7 +2,7 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "./schema";
 
-const connectionString = process.env.DATABASE_URL!;
+const connectionString = process.env.DATABASE_URL ?? "";
 
 // Session pooler (port 5432) supports prepared statements
 // Transaction pooler (port 6543) requires prepare: false
