@@ -4,14 +4,15 @@ import Link from "next/link";
 import { db } from "@/db";
 import { pages } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MemberAvatars } from "@/components/groups/MemberAvatars";
 import { PageCard } from "@/components/pages/PageCard";
 import { PageCover } from "@/components/pages/PageCover";
 import { AddSubPageButton } from "@/components/pages/AddSubPageButton";
 import { ManageGroupsButton } from "@/components/pages/ManageGroupsButton";
 import { EditLabelButton } from "@/components/pages/EditLabelButton";
-import { Badge } from "@/components/ui/badge";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Users } from "lucide-react";
+import { getAvatarColor } from "@/lib/avatar-color";
 
 async function getPage(id: string) {
   return db.query.pages.findFirst({
@@ -70,7 +71,7 @@ export default async function PageDetailPage({ params }: { params: Promise<{ id:
   });
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-6xl mx-auto space-y-4">
 
       {/* Breadcrumb */}
       <nav className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -87,82 +88,108 @@ export default async function PageDetailPage({ params }: { params: Promise<{ id:
         <span className="text-foreground font-medium">{page.title}</span>
       </nav>
 
-      {/* Profile card — image left, meta right */}
-      <div className="flex flex-col sm:flex-row gap-6 sm:items-start">
+      {/* Sidebar + Content split */}
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
 
-        {/* Square thumbnail */}
-        <div className="shrink-0 w-full sm:w-36 h-48 sm:h-36 rounded-xl overflow-hidden border">
-          {page.pictureUrl ? (
-            <Image src={page.pictureUrl} alt={page.title} width={144} height={144} className="object-cover w-full h-full" />
-          ) : (
-            <PageCover title={page.title} className="w-full h-full flex items-center justify-center" />
-          )}
-        </div>
+        {/* ── Sidebar ── */}
+        <aside className="w-full lg:w-64 shrink-0 space-y-5">
 
-        {/* Meta */}
-        <div className="flex-1 space-y-3 pt-1">
-          <div>
-            <h1 className="text-2xl font-bold leading-tight">{page.title}</h1>
-            {page.description && (
-              <p className="text-muted-foreground mt-1">{page.description}</p>
+          {/* Cover image */}
+          <div className="w-full aspect-square rounded-xl overflow-hidden border">
+            {page.pictureUrl ? (
+              <Image src={page.pictureUrl} alt={page.title} width={256} height={256} className="object-cover w-full h-full" />
+            ) : (
+              <PageCover title={page.title} className="w-full h-full flex items-center justify-center" />
             )}
           </div>
 
-          {/* Label */}
-          <EditLabelButton pageId={page.id} label={page.label ?? null} />
-
-          {/* Linked groups */}
-          <div className="flex flex-wrap items-center gap-2">
-            {page.pageGroups?.map((pg) => (
-              <Link key={pg.group.id} href={`/groups/${pg.group.id}`}>
-                <Badge variant="secondary" className="hover:bg-secondary/80 cursor-pointer">
-                  {pg.group.name}
-                </Badge>
-              </Link>
-            ))}
-            <ManageGroupsButton
-              pageId={page.id}
-              linkedGroups={page.pageGroups?.map((pg) => ({ id: pg.group.id, name: pg.group.name })) ?? []}
-            />
+          {/* Groups */}
+          <div className="space-y-1">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-2">Groups</p>
+            {page.pageGroups?.map((pg) => {
+              const memberCount = pg.group.memberships?.length ?? 0;
+              return (
+                <Link key={pg.group.id} href={`/groups/${pg.group.id}`}>
+                  <div className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-accent transition-colors cursor-pointer">
+                    <Avatar className="h-9 w-9 rounded-md shrink-0">
+                      <AvatarImage src={pg.group.logoUrl ?? undefined} />
+                      <AvatarFallback className="rounded-md text-sm font-semibold text-white" style={{ background: getAvatarColor(pg.group.name) }}>
+                        {pg.group.name[0].toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium truncate">{pg.group.name}</p>
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Users className="h-3 w-3" />
+                        <span>{memberCount} {memberCount === 1 ? "member" : "members"}</span>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+            <div className="px-2 pt-1">
+              <ManageGroupsButton
+                pageId={page.id}
+                linkedGroups={page.pageGroups?.map((pg) => ({ id: pg.group.id, name: pg.group.name })) ?? []}
+              />
+            </div>
           </div>
 
-          {/* Members */}
+          {/* All members */}
           {allMembers.length > 0 && (
-            <div className="flex items-center gap-2">
-              <MemberAvatars members={allMembers} max={10} />
-              <span className="text-sm text-muted-foreground">{allMembers.length} members</span>
+            <div className="space-y-1 px-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Members</p>
+              <div className="flex items-center gap-2">
+                <MemberAvatars members={allMembers} max={8} />
+                <span className="text-xs text-muted-foreground">{allMembers.length}</span>
+              </div>
             </div>
           )}
 
           {/* Creator */}
           {page.creator && (
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground px-2">
               Created by <span className="font-medium text-foreground">{page.creator.name}</span>
             </p>
           )}
-        </div>
-      </div>
+        </aside>
 
-      {/* Sub-pages grid */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-            Sub-pages
-          </h2>
-          <AddSubPageButton
-            parentPageId={page.id}
-            existingChildIds={page.children?.map((c) => c.id) ?? []}
-          />
-        </div>
-        {page.children?.length > 0 ? (
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-            {page.children.map((child) => (
-              <PageCard key={child.id} page={child} />
-            ))}
+        {/* ── Main content ── */}
+        <div className="flex-1 min-w-0 space-y-6">
+
+          {/* Title + label + description */}
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold leading-tight">{page.title}</h1>
+            <EditLabelButton pageId={page.id} label={page.label ?? null} />
+            {page.description && (
+              <p className="text-muted-foreground">{page.description}</p>
+            )}
           </div>
-        ) : (
-          <p className="text-sm text-muted-foreground">No sub-pages yet.</p>
-        )}
+
+          {/* Sub-pages */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                Sub-pages
+              </h2>
+              <AddSubPageButton
+                parentPageId={page.id}
+                existingChildIds={page.children?.map((c) => c.id) ?? []}
+              />
+            </div>
+            {page.children?.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+                {page.children.map((child) => (
+                  <PageCard key={child.id} page={child} />
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">No sub-pages yet.</p>
+            )}
+          </div>
+
+        </div>
       </div>
 
     </div>
