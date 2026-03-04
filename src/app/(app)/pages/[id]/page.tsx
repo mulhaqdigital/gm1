@@ -179,7 +179,7 @@ export default async function PageDetailPage({ params }: { params: Promise<{ id:
               />
             </div>
             {page.children?.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 xl:grid-cols-3 gap-3">
                 {page.children.map((child) => (
                   <PageCard key={child.id} page={child} />
                 ))}
