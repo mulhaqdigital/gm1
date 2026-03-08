@@ -1,8 +1,7 @@
 import Link from "next/link";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Users } from "lucide-react";
-import { getAvatarColor } from "@/lib/avatar-color";
+import { GroupAvatar } from "@/components/groups/GroupAvatar";
 
 interface GroupCardProps {
   group: {
@@ -22,12 +21,7 @@ export function GroupCard({ group }: GroupCardProps) {
     <Link href={`/groups/${group.id}`}>
       <div className="border rounded-lg p-4 hover:border-foreground/30 hover:shadow-sm transition-all bg-card cursor-pointer">
         <div className="flex items-start gap-3">
-          <Avatar className="h-16 w-16 rounded-md">
-            <AvatarImage src={group.logoUrl ?? undefined} />
-            <AvatarFallback className="rounded-md text-lg font-semibold text-white" style={{ background: getAvatarColor(group.name) }}>
-              {group.name[0].toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
+          <GroupAvatar name={group.name} logoUrl={group.logoUrl} className="h-16 w-16" />
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <p className="font-semibold truncate">{group.name}</p>

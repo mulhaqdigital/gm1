@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { GroupAvatar } from "@/components/groups/GroupAvatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -91,12 +92,7 @@ export default function GroupPage() {
     <div className="flex flex-col md:flex-row gap-6 md:items-start">
       {/* Sidebar */}
       <aside className="w-full md:w-56 shrink-0 rounded-xl border p-5 space-y-4 md:sticky md:top-20">
-        <Avatar className="h-14 w-14 rounded-xl">
-          <AvatarImage src={group.logoUrl} />
-          <AvatarFallback className="rounded-xl text-lg font-bold text-white" style={{ background: getAvatarColor(group.name) }}>
-            {group.name[0].toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
+        <GroupAvatar name={group.name} logoUrl={group.logoUrl} className="h-14 w-14" rounded="xl" />
 
         <div>
           <h1 className="font-bold text-lg leading-tight">{group.name}</h1>
