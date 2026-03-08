@@ -1,5 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getAvatarColor } from "@/lib/avatar-color";
+import { getAvatarColor, getDiceBearUrl } from "@/lib/avatar-color";
 
 interface Member {
   id: string;
@@ -25,7 +25,7 @@ export function MemberAvatars({ members, max = 8 }: MemberAvatarsProps) {
           style={{ marginLeft: i === 0 ? 0 : -8 }}
           title={member.name}
         >
-          <AvatarImage src={member.pictureUrl ?? undefined} />
+          <AvatarImage src={member.pictureUrl ?? getDiceBearUrl(member.id)} />
           <AvatarFallback className="text-xs text-white" style={{ background: getAvatarColor(member.name) }}>{member.name[0]?.toUpperCase()}</AvatarFallback>
         </Avatar>
       ))}

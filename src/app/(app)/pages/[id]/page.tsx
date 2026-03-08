@@ -22,6 +22,7 @@ async function getPage(id: string) {
       children: {
         orderBy: [pages.sortOrder],
         with: {
+          label: true,
           pageGroups: {
             with: {
               group: {

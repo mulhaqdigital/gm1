@@ -14,7 +14,7 @@ import Link from "next/link";
 import { PageCover } from "@/components/pages/PageCover";
 import { LinkPageButton } from "@/components/groups/LinkPageButton";
 import Image from "next/image";
-import { getAvatarColor } from "@/lib/avatar-color";
+import { getAvatarColor, getDiceBearUrl } from "@/lib/avatar-color";
 
 export default function GroupPage() {
   const { id } = useParams<{ id: string }>();
@@ -138,7 +138,7 @@ export default function GroupPage() {
             {group.memberships?.map((m: any) => (
               <div key={m.userId} className="flex items-center gap-2.5 rounded-lg border p-3">
                 <Avatar className="h-8 w-8 shrink-0">
-                  <AvatarImage src={m.user?.pictureUrl} />
+                  <AvatarImage src={m.user?.pictureUrl ?? getDiceBearUrl(m.userId)} />
                   <AvatarFallback className="text-xs text-white" style={{ background: getAvatarColor(m.user?.name ?? m.userId) }}>{m.user?.name?.[0]?.toUpperCase()}</AvatarFallback>
                 </Avatar>
                 <div className="min-w-0">

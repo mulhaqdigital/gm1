@@ -21,6 +21,7 @@ async function getPublicPages() {
     where: isNull(pages.parentPageId),
     orderBy: desc(pages.createdAt),
     limit: 8,
+    with: { label: true },
   });
 }
 

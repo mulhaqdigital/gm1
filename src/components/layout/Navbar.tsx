@@ -15,7 +15,7 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/s
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
-import { getAvatarColor } from "@/lib/avatar-color";
+import { getAvatarColor, getDiceBearUrl } from "@/lib/avatar-color";
 import { Menu } from "lucide-react";
 
 const navLinks = [
@@ -74,7 +74,7 @@ export function Navbar() {
               <DropdownMenuTrigger asChild>
                 <button className="rounded-full focus:outline-none focus:ring-2 focus:ring-ring">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src={user.user_metadata?.picture_url} />
+                    <AvatarImage src={user.user_metadata?.picture_url ?? getDiceBearUrl(user.id)} />
                     <AvatarFallback className="text-white text-xs font-semibold" style={{ background: getAvatarColor(user.email ?? user.id) }}>
                       {user.email?.[0]?.toUpperCase()}
                     </AvatarFallback>
@@ -142,7 +142,7 @@ export function Navbar() {
                         className="flex items-center gap-3 px-3 py-2 rounded-md text-sm hover:bg-accent"
                       >
                         <Avatar className="h-7 w-7">
-                          <AvatarImage src={user.user_metadata?.picture_url} />
+                          <AvatarImage src={user.user_metadata?.picture_url ?? getDiceBearUrl(user.id)} />
                           <AvatarFallback className="text-white text-xs" style={{ background: getAvatarColor(user.email ?? user.id) }}>
                             {user.email?.[0]?.toUpperCase()}
                           </AvatarFallback>

@@ -29,6 +29,7 @@ async function getDashboard() {
   const pageGrid = await db.query.pages.findMany({
     where: isNull(pages.parentPageId),
     with: {
+      label: true,
       pageGroups: {
         with: {
           group: {
