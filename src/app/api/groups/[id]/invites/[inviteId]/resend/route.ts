@@ -10,9 +10,8 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     const userId = await requireAuth();
     const { id: groupId, inviteId } = await params;
 
-    if (!await isGroupAdmin(userId, groupId) && !await isSiteAdmin(userId)) {
-      return err("Forbidden", 403);
-    }
+    const [admin, siteAdmin] = await Promise.all([isGroupAdmin(userId, groupId), isSiteAdmin(userId)]);
+    if (!admin && !siteAdmin) return err("Forbidden", 403);
 
     const invite = await db.query.groupInvites.findFirst({
       where: and(eq(groupInvites.id, inviteId), eq(groupInvites.groupId, groupId), eq(groupInvites.status, "pending")),

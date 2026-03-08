@@ -7,10 +7,13 @@ import { requireAuth } from "@/lib/permissions";
 async function resolveLabel(labelId?: string, labelName?: string): Promise<string> {
   if (labelId) return labelId;
   const name = labelName!.trim();
-  const existing = await db.query.labels.findFirst({ where: eq(labels.name, name) });
-  if (existing) return existing.id;
-  const [created] = await db.insert(labels).values({ name }).returning();
-  return created.id;
+  // Upsert avoids a TOCTOU race between concurrent requests creating the same label
+  const [row] = await db
+    .insert(labels)
+    .values({ name })
+    .onConflictDoUpdate({ target: labels.name, set: { name } })
+    .returning({ id: labels.id });
+  return row.id;
 }
 
 export async function GET(req: Request) {

@@ -10,9 +10,8 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     const userId = await requireAuth();
     const { id: groupId } = await params;
 
-    if (!await isGroupAdmin(userId, groupId) && !await isSiteAdmin(userId)) {
-      return err("Forbidden", 403);
-    }
+    const [admin, siteAdmin] = await Promise.all([isGroupAdmin(userId, groupId), isSiteAdmin(userId)]);
+    if (!admin && !siteAdmin) return err("Forbidden", 403);
 
     const invites = await db.query.groupInvites.findMany({
       where: and(eq(groupInvites.groupId, groupId), eq(groupInvites.status, "pending")),
@@ -32,9 +31,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const userId = await requireAuth();
     const { id: groupId } = await params;
 
-    if (!await isGroupAdmin(userId, groupId) && !await isSiteAdmin(userId)) {
-      return err("Forbidden", 403);
-    }
+    const [admin, siteAdmin] = await Promise.all([isGroupAdmin(userId, groupId), isSiteAdmin(userId)]);
+    if (!admin && !siteAdmin) return err("Forbidden", 403);
 
     const body = await parseBody<{ email: string }>(req);
     const email = body.email?.trim().toLowerCase();

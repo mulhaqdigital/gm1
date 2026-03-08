@@ -6,6 +6,7 @@ import {
   primaryKey,
   boolean,
   integer,
+  index,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -54,25 +55,36 @@ export const groupMemberships = pgTable(
       .defaultNow()
       .notNull(),
   },
-  (t) => [primaryKey({ columns: [t.userId, t.groupId] })]
+  (t) => [
+    primaryKey({ columns: [t.userId, t.groupId] }),
+    index("gm_user_idx").on(t.userId),
+    index("gm_group_idx").on(t.groupId),
+  ]
 );
 
 // ------------------------------------------------------------------
 // Pages
 // ------------------------------------------------------------------
-export const pages = pgTable("pages", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  title: text("title").notNull(),
-  description: text("description"),
-  pictureUrl: text("picture_url"),
-  parentPageId: uuid("parent_page_id"), // self-reference added via relations
-  sortOrder: integer("sort_order").default(0).notNull(),
-  labelId: uuid("label_id").references(() => labels.id),
-  createdBy: uuid("created_by").references(() => profiles.id),
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .defaultNow()
-    .notNull(),
-});
+export const pages = pgTable(
+  "pages",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    title: text("title").notNull(),
+    description: text("description"),
+    pictureUrl: text("picture_url"),
+    parentPageId: uuid("parent_page_id"), // self-reference added via relations
+    sortOrder: integer("sort_order").default(0).notNull(),
+    labelId: uuid("label_id").references(() => labels.id),
+    createdBy: uuid("created_by").references(() => profiles.id),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    index("pages_parent_idx").on(t.parentPageId),
+    index("pages_label_idx").on(t.labelId),
+  ]
+);
 
 // ------------------------------------------------------------------
 // Labels
@@ -102,16 +114,23 @@ export const pageGroups = pgTable(
 // ------------------------------------------------------------------
 // Group Invites
 // ------------------------------------------------------------------
-export const groupInvites = pgTable("group_invites", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  groupId: uuid("group_id").notNull().references(() => groups.id, { onDelete: "cascade" }),
-  invitedBy: uuid("invited_by").notNull().references(() => profiles.id),
-  email: text("email").notNull(),
-  token: uuid("token").defaultRandom().notNull().unique(),
-  status: text("status").$type<"pending" | "accepted" | "declined">().default("pending").notNull(),
-  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
+export const groupInvites = pgTable(
+  "group_invites",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    groupId: uuid("group_id").notNull().references(() => groups.id, { onDelete: "cascade" }),
+    invitedBy: uuid("invited_by").notNull().references(() => profiles.id),
+    email: text("email").notNull(),
+    token: uuid("token").defaultRandom().notNull().unique(),
+    status: text("status").$type<"pending" | "accepted" | "declined">().default("pending").notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    index("invites_group_idx").on(t.groupId),
+    index("invites_email_idx").on(t.email),
+  ]
+);
 
 // ------------------------------------------------------------------
 // Relations

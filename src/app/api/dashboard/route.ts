@@ -1,6 +1,6 @@
 import { db } from "@/db";
-import { groupMemberships, pageGroups, pages } from "@/db/schema";
-import { eq, inArray, isNull } from "drizzle-orm";
+import { groupMemberships, pages } from "@/db/schema";
+import { eq, isNull } from "drizzle-orm";
 import { ok } from "@/lib/api";
 import { requireAuth } from "@/lib/permissions";
 
@@ -26,18 +26,7 @@ export async function GET() {
       memberCount: m.group.memberships.length,
     }));
 
-    // Page grid — root pages + pages linked to my groups
-    const myGroupIds = myGroups.map((g) => g.id);
-
-    let linkedPageIds: string[] = [];
-    if (myGroupIds.length > 0) {
-      const linkedPageGroups = await db.query.pageGroups.findMany({
-        where: inArray(pageGroups.groupId, myGroupIds),
-        columns: { pageId: true },
-      });
-      linkedPageIds = [...new Set(linkedPageGroups.map((pg) => pg.pageId))];
-    }
-
+    // Page grid — root pages with linked groups
     const pageGrid = await db.query.pages.findMany({
       where: isNull(pages.parentPageId),
       with: {
