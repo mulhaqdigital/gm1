@@ -1,4 +1,4 @@
-import { getAvatarColor } from "@/lib/avatar-color";
+import { Icon } from "@iconify/react";
 
 const GRADIENTS = [
   ["#f093fb", "#f5576c"],
@@ -13,13 +13,37 @@ const GRADIENTS = [
   ["#fddb92", "#d1fdff"],
 ];
 
-function getGradient(seed: string): string {
-  let hash = 0;
+const ICONS = [
+  "line-md:document-list",
+  "line-md:document",
+  "line-md:document-code",
+  "line-md:document-report",
+  "line-md:file-document",
+  "line-md:text-box",
+  "line-md:text-box-multiple",
+  "line-md:file",
+  "line-md:file-search",
+  "line-md:image",
+  "line-md:file-plus",
+  "line-md:file-export",
+  "line-md:file-import",
+];
+
+function hash(seed: string): number {
+  let h = 0;
   for (let i = 0; i < seed.length; i++) {
-    hash = seed.charCodeAt(i) + ((hash << 5) - hash);
+    h = seed.charCodeAt(i) + ((h << 5) - h);
   }
-  const [from, to] = GRADIENTS[Math.abs(hash) % GRADIENTS.length];
+  return Math.abs(h);
+}
+
+function getGradient(seed: string): string {
+  const [from, to] = GRADIENTS[hash(seed) % GRADIENTS.length];
   return `linear-gradient(135deg, ${from} 0%, ${to} 100%)`;
+}
+
+function getIcon(seed: string): string {
+  return ICONS[hash(seed + "icon") % ICONS.length];
 }
 
 interface PageCoverProps {
@@ -33,12 +57,11 @@ export function PageCover({ title, className }: PageCoverProps) {
       className={className}
       style={{ background: getGradient(title) }}
     >
-      <span
-        className="text-white font-bold select-none"
-        style={{ fontSize: "clamp(2rem, 40%, 5rem)", opacity: 0.85, textShadow: "0 2px 8px rgba(0,0,0,0.15)" }}
-      >
-        {title[0]?.toUpperCase()}
-      </span>
+      <Icon
+        icon={getIcon(title)}
+        className="text-white select-none"
+        style={{ fontSize: "clamp(2rem, 40%, 5rem)", opacity: 0.85, filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.15))" }}
+      />
     </div>
   );
 }

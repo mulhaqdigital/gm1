@@ -1,7 +1,5 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 const FROM = process.env.EMAIL_FROM ?? "invites@yourdomain.com";
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
@@ -21,6 +19,7 @@ export async function sendGroupInviteEmail({
   const acceptUrl = `${APP_URL}/invite?token=${token}`;
   const expiry = expiresAt.toLocaleDateString("en-US", { dateStyle: "long" });
 
+  const resend = new Resend(process.env.RESEND_API_KEY);
   await resend.emails.send({
     from: FROM,
     to: toEmail,
