@@ -100,6 +100,20 @@ export const pageGroups = pgTable(
 );
 
 // ------------------------------------------------------------------
+// Group Invites
+// ------------------------------------------------------------------
+export const groupInvites = pgTable("group_invites", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  groupId: uuid("group_id").notNull().references(() => groups.id, { onDelete: "cascade" }),
+  invitedBy: uuid("invited_by").notNull().references(() => profiles.id),
+  email: text("email").notNull(),
+  token: uuid("token").defaultRandom().notNull().unique(),
+  status: text("status").$type<"pending" | "accepted" | "declined">().default("pending").notNull(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+// ------------------------------------------------------------------
 // Relations
 // ------------------------------------------------------------------
 export const profilesRelations = relations(profiles, ({ many }) => ({
@@ -112,6 +126,12 @@ export const groupsRelations = relations(groups, ({ one, many }) => ({
   creator: one(profiles, { fields: [groups.createdBy], references: [profiles.id] }),
   memberships: many(groupMemberships),
   pageGroups: many(pageGroups),
+  invites: many(groupInvites),
+}));
+
+export const groupInvitesRelations = relations(groupInvites, ({ one }) => ({
+  group: one(groups, { fields: [groupInvites.groupId], references: [groups.id] }),
+  inviter: one(profiles, { fields: [groupInvites.invitedBy], references: [profiles.id] }),
 }));
 
 export const groupMembershipsRelations = relations(groupMemberships, ({ one }) => ({
@@ -148,3 +168,4 @@ export type Label = typeof labels.$inferSelect;
 
 export type NewGroup = typeof groups.$inferInsert;
 export type NewPage = typeof pages.$inferInsert;
+export type GroupInvite = typeof groupInvites.$inferSelect;

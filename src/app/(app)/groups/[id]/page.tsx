@@ -13,6 +13,7 @@ import { Users, FileText } from "lucide-react";
 import Link from "next/link";
 import { PageCover } from "@/components/pages/PageCover";
 import { LinkPageButton } from "@/components/groups/LinkPageButton";
+import { InviteMemberButton } from "@/components/groups/InviteMemberButton";
 import Image from "next/image";
 import { getAvatarColor, getDiceBearUrl } from "@/lib/avatar-color";
 
@@ -133,7 +134,10 @@ export default function GroupPage() {
 
         {/* Members grid */}
         <div>
-          <h2 className="font-semibold mb-4">Members ({group.memberships?.length ?? 0})</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-semibold">Members ({group.memberships?.length ?? 0})</h2>
+            {myMembership?.role === "admin" && <InviteMemberButton groupId={id} />}
+          </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {group.memberships?.map((m: any) => (
               <div key={m.userId} className="flex items-center gap-2.5 rounded-lg border p-3">

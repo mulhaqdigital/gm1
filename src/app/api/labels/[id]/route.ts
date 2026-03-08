@@ -2,11 +2,12 @@ import { db } from "@/db";
 import { labels, pages } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { ok, err, parseBody } from "@/lib/api";
-import { requireAuth } from "@/lib/permissions";
+import { requireAuth, isSiteAdmin } from "@/lib/permissions";
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    await requireAuth();
+    const userId = await requireAuth();
+    if (!await isSiteAdmin(userId)) return err("Forbidden", 403);
 
     const { id } = await params;
     const body = await parseBody<{ name: string }>(req);
@@ -32,7 +33,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    await requireAuth();
+    const userId = await requireAuth();
+    if (!await isSiteAdmin(userId)) return err("Forbidden", 403);
 
     const { id } = await params;
 
