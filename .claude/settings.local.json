@@ -29,7 +29,10 @@
       "Bash(ls \"D:/Cursor/gm1/src/app/\\(app\\)/\")",
       "Bash(cd \"D:/Cursor/gm1\" && node -e \"console.log\\(require\\('./package.json'\\).dependencies.next\\)\")",
       "Bash(ls \"D:/Cursor/gm1/src/app/\\(app\\)/pages/\")",
-      "Bash(cd D:/Cursor/gm1 && ls src/app/\\\\\\(app\\\\\\)/groups/\\\\[slug\\\\]/ && ls src/app/\\\\\\(app\\\\\\)/pages/\\\\[slug\\\\]/)"
+      "Bash(cd D:/Cursor/gm1 && ls src/app/\\\\\\(app\\\\\\)/groups/\\\\[slug\\\\]/ && ls src/app/\\\\\\(app\\\\\\)/pages/\\\\[slug\\\\]/)",
+      "Bash(find /d/Cursor/gm1/src/components -name \"*Page*\" -o -name \"*Group*\" | grep -E \"\\\\.\\(tsx|ts\\)$\" | head -10)",
+      "Bash(find /d/Cursor/gm1/src/app -name \"*signup*\" -o -name \"*login*\" -o -name \"*auth*\" | grep -E \"\\\\.\\(tsx|ts\\)$\" | head -10)",
+      "Bash(head -50 /d/Cursor/gm1/src/app/api/groups/\\\\[id\\\\]/invites/route.ts)"
     ]
   }
 }

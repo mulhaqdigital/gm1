@@ -12,7 +12,8 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "test:supabase": "tsx scripts/test-supabase.ts",
-    "db:seed": "tsx scripts/seed.ts"
+    "db:seed": "tsx scripts/seed.ts",
+    "db:seed-onboarding": "tsx scripts/seed-onboarding.ts"
   },
   "dependencies": {
     "@iconify/react": "^6.0.2",
