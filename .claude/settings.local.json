@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-next-app@latest:*)",
+      "Bash(cp:*)",
+      "Bash(npm install:*)",
+      "Bash(npx shadcn@latest:*)",
+      "Bash(mkdir:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run:*)",
+      "Bash(curl:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(node:*)",
+      "Bash(npx tsx:*)",
+      "Bash(xargs grep:*)",
+      "Bash(ls:*)",
+      "WebFetch(domain:shadcnstore.com)",
+      "WebFetch(domain:notion-avatar.app)",
+      "WebFetch(domain:notion-avatars.netlify.app)",
+      "Bash(npm list:*)",
+      "WebFetch(domain:api.iconify.design)",
+      "WebFetch(domain:icon-sets.iconify.design)"
+    ]
+  }
+}

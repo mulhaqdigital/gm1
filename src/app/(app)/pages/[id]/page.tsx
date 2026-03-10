@@ -72,7 +72,7 @@ export default async function PageDetailPage({ params }: { params: Promise<{ id:
   });
 
   return (
-    <div className="max-w-6xl mx-auto space-y-4">
+    <div className="space-y-4">
 
       {/* Breadcrumb */}
       <nav className="flex items-center gap-1 text-sm text-muted-foreground">
