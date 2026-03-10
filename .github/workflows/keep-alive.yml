@@ -1,0 +1,15 @@
+name: Keep Supabase Alive
+
+on:
+  schedule:
+    - cron: "0 8 * * *"  # Every day at 8:00 AM UTC
+  workflow_dispatch:       # Manual trigger from GitHub Actions UI
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping app API
+        run: |
+          curl -f https://groupmanager1.vercel.app/api/ping \
+            || echo "Ping failed"
