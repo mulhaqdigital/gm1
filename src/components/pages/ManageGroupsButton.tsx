@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Settings2, X } from "lucide-react";
+import { Settings2, X, Users, SearchX } from "lucide-react";
 
 interface GroupItem {
   id: string;
@@ -89,7 +89,9 @@ export function ManageGroupsButton({
           Manage groups
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="sm:max-w-md p-0 overflow-hidden">
+
+        <div className="px-6 pt-5 pb-6 space-y-4">
         <DialogHeader>
           <DialogTitle>Linked groups</DialogTitle>
         </DialogHeader>
@@ -97,7 +99,10 @@ export function ManageGroupsButton({
         {/* Current linked groups */}
         <div className="space-y-2">
           {current.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No groups linked yet.</p>
+            <div className="flex items-center gap-2 text-muted-foreground py-1">
+              <Users className="h-4 w-4 opacity-40" />
+              <p className="text-sm">No groups linked yet</p>
+            </div>
           ) : (
             <div className="flex flex-wrap gap-2">
               {current.map((g) => (
@@ -140,9 +145,13 @@ export function ManageGroupsButton({
                 </div>
               ))
             ) : search && !searching ? (
-              <p className="text-sm text-muted-foreground py-2 text-center">No groups found.</p>
+              <div className="flex flex-col items-center gap-2 py-6 text-muted-foreground">
+                <SearchX className="h-7 w-7 opacity-30" />
+                <p className="text-sm">No groups found</p>
+              </div>
             ) : null}
           </div>
+        </div>
         </div>
       </DialogContent>
     </Dialog>

@@ -2,15 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useLoginDialog } from "@/components/auth/LoginDialogProvider";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createClient } from "@/lib/supabase/client";
+import { groupUrl } from "@/lib/slugify";
 import { toast } from "sonner";
 import { Suspense } from "react";
 
 function InvitePage() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { openLoginDialog } = useLoginDialog();
   const token = searchParams.get("token");
 
   const [userId, setUserId] = useState<string | null | undefined>(undefined); // undefined = loading
@@ -31,7 +34,7 @@ function InvitePage() {
     if (res.ok) {
       setDone(true);
       toast.success("You've joined the group!");
-      setTimeout(() => router.push(`/groups/${data.groupId}`), 1500);
+      setTimeout(() => router.push(groupUrl(data.groupId, data.groupName)), 1500);
     } else {
       setError(data.error ?? "Failed to accept invite");
       toast.error(data.error ?? "Failed to accept invite");
@@ -65,7 +68,7 @@ function InvitePage() {
       <PageShell>
         <p className="font-semibold text-lg">You've been invited to join a group</p>
         <p className="text-muted-foreground text-sm">Sign in to accept this invite.</p>
-        <Button onClick={() => router.push(`/login?next=/invite?token=${token}`)}>
+        <Button onClick={() => openLoginDialog(`/invite?token=${token}`)}>
           Sign in to accept
         </Button>
       </PageShell>

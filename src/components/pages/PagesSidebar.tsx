@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { ChevronRight, FileText, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { pageUrl, extractUuid } from "@/lib/slugify";
 
 export interface SidebarPage {
   id: string;
@@ -65,7 +66,7 @@ function TreeNode({
 
         {/* Row */}
         <Link
-          href={`/pages/${page.id}`}
+          href={pageUrl(page.id, page.title)}
           className={cn(
             "group flex items-center gap-1.5 px-1.5 py-1 rounded-md text-sm flex-1 min-w-0 transition-colors relative",
             isActive
@@ -102,7 +103,8 @@ function TreeNode({
 export function PagesSidebar({ tree }: { tree: SidebarPage[] }) {
   const pathname = usePathname();
   const match = pathname.match(/^\/pages\/([^/]+)/);
-  const activeId = match ? match[1] : null;
+  // Extract UUID from slug so isActive comparison works against page.id
+  const activeId = match ? (extractUuid(match[1]) ?? match[1]) : null;
 
   return (
     <nav>

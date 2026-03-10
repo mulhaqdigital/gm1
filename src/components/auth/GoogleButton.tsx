@@ -4,16 +4,18 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 
-export function GoogleButton() {
+export function GoogleButton({ next }: { next?: string } = {}) {
   const [loading, setLoading] = useState(false);
 
   async function handleClick() {
     setLoading(true);
     const supabase = createClient();
+    const callbackUrl = new URL(`${location.origin}/auth/callback`);
+    if (next) callbackUrl.searchParams.set("next", next);
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${location.origin}/auth/callback`,
+        redirectTo: callbackUrl.toString(),
       },
     });
     // browser redirects away — no need to setLoading(false)

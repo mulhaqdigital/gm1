@@ -64,11 +64,14 @@ export function EditLabelButton({
           )}
         </button>
       </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Set label</DialogTitle>
-        </DialogHeader>
-        <LabelCombobox value={label} onChange={handleChange} />
+      <DialogContent className="sm:max-w-sm p-0 overflow-hidden">
+
+        <div className="px-6 pt-5 pb-6 space-y-4">
+          <DialogHeader>
+            <DialogTitle>Set label</DialogTitle>
+          </DialogHeader>
+          <LabelCombobox value={label} onChange={handleChange} />
+        </div>
       </DialogContent>
     </Dialog>
   );

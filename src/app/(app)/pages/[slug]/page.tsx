@@ -1,6 +1,7 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { db } from "@/db";
 import { pages } from "@/db/schema";
 import { eq } from "drizzle-orm";
@@ -11,8 +12,42 @@ import { PageCover } from "@/components/pages/PageCover";
 import { AddSubPageButton } from "@/components/pages/AddSubPageButton";
 import { ManageGroupsButton } from "@/components/pages/ManageGroupsButton";
 import { EditLabelButton } from "@/components/pages/EditLabelButton";
+import { ShareButton } from "@/components/ShareButton";
 import { ChevronRight, Users } from "lucide-react";
 import { getAvatarColor } from "@/lib/avatar-color";
+import { extractUuid, pageUrl, groupUrl } from "@/lib/slugify";
+
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "";
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const id = extractUuid(slug);
+  if (!id) return { title: "Page not found | GM1" };
+
+  const page = await db.query.pages.findFirst({
+    where: eq(pages.id, id),
+    columns: { id: true, title: true, description: true, pictureUrl: true },
+  });
+  if (!page) return { title: "Page not found | GM1" };
+
+  const url = `${BASE_URL}${pageUrl(page.id, page.title)}`;
+  const description = page.description ?? "View this page on GM1";
+
+  return {
+    title: `${page.title} | GM1`,
+    description,
+    openGraph: {
+      title: page.title,
+      description,
+      url,
+      siteName: "GM1",
+      type: "article",
+      ...(page.pictureUrl && {
+        images: [{ url: page.pictureUrl, width: 800, height: 600, alt: page.title }],
+      }),
+    },
+  };
+}
 
 async function getPage(id: string) {
   return db.query.pages.findFirst({
@@ -55,10 +90,17 @@ async function getPage(id: string) {
   });
 }
 
-export default async function PageDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export default async function PageDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const id = extractUuid(slug);
+  if (!id) notFound();
+
   const page = await getPage(id);
   if (!page) notFound();
+
+  // Redirect to canonical slug if title has changed or bare UUID was used
+  const canonical = pageUrl(page.id, page.title).slice("/pages/".length);
+  if (slug !== canonical) redirect(pageUrl(page.id, page.title));
 
   const allMembers: { id: string; name: string; pictureUrl?: string | null }[] = [];
   const seen = new Set<string>();
@@ -75,12 +117,12 @@ export default async function PageDetailPage({ params }: { params: Promise<{ id:
     <div className="space-y-4">
 
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-1 text-sm text-muted-foreground">
+      <nav className="flex items-center gap-1 text-sm text-muted-foreground overflow-x-auto scrollbar-none flex-nowrap">
         <Link href="/pages" className="hover:text-foreground transition-colors">Pages</Link>
         {page.parent && (
           <>
             <ChevronRight className="h-4 w-4" />
-            <Link href={`/pages/${page.parent.id}`} className="hover:text-foreground transition-colors">
+            <Link href={pageUrl(page.parent.id, page.parent.title)} className="hover:text-foreground transition-colors">
               {page.parent.title}
             </Link>
           </>
@@ -96,7 +138,7 @@ export default async function PageDetailPage({ params }: { params: Promise<{ id:
         <aside className="w-full lg:w-64 shrink-0 space-y-5">
 
           {/* Cover image */}
-          <div className="w-full aspect-square rounded-xl overflow-hidden border">
+          <div className="w-full aspect-[4/3] sm:aspect-square rounded-xl overflow-hidden border">
             {page.pictureUrl ? (
               <Image src={page.pictureUrl} alt={page.title} width={256} height={256} className="object-cover w-full h-full" />
             ) : (
@@ -110,7 +152,7 @@ export default async function PageDetailPage({ params }: { params: Promise<{ id:
             {page.pageGroups?.map((pg) => {
               const memberCount = pg.group.memberships?.length ?? 0;
               return (
-                <Link key={pg.group.id} href={`/groups/${pg.group.id}`}>
+                <Link key={pg.group.id} href={groupUrl(pg.group.id, pg.group.name)}>
                   <div className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-accent transition-colors cursor-pointer">
                     <Avatar className="h-9 w-9 rounded-md shrink-0">
                       <AvatarImage src={pg.group.logoUrl ?? undefined} />
@@ -161,7 +203,10 @@ export default async function PageDetailPage({ params }: { params: Promise<{ id:
 
           {/* Title + label + description */}
           <div className="space-y-2">
-            <h1 className="text-2xl font-bold leading-tight">{page.title}</h1>
+            <div className="flex items-start justify-between gap-3">
+              <h1 className="text-2xl font-bold leading-tight">{page.title}</h1>
+              <ShareButton title={page.title} description={page.description} className="shrink-0" />
+            </div>
             <EditLabelButton pageId={page.id} label={page.label ?? null} />
             {page.description && (
               <p className="text-muted-foreground">{page.description}</p>

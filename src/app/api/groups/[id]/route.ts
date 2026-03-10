@@ -14,7 +14,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
         with: { user: { columns: { id: true, name: true, pictureUrl: true } } },
       },
       pageGroups: {
-        with: { page: { columns: { id: true, title: true, pictureUrl: true } } },
+        with: { page: { columns: { id: true, title: true, pictureUrl: true, parentPageId: true } } },
       },
     },
   });

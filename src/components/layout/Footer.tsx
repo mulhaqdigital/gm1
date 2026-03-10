@@ -17,7 +17,7 @@ export function Footer() {
           <Link href="/groups" className="hover:text-foreground transition-colors">
             Groups
           </Link>
-          <Link href="/login" className="hover:text-foreground transition-colors">
+          <Link href="/?showLogin=1" className="hover:text-foreground transition-colors">
             Log in
           </Link>
           <Link href="/signup" className="hover:text-foreground transition-colors">

@@ -17,6 +17,7 @@ import { useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { getAvatarColor, getDiceBearUrl } from "@/lib/avatar-color";
 import { Menu } from "lucide-react";
+import { useLoginDialog } from "@/components/auth/LoginDialogProvider";
 
 const navLinks = [
   { href: "/dashboard", label: "Dashboard" },
@@ -29,6 +30,7 @@ export function Navbar() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { openLoginDialog } = useLoginDialog();
 
   useEffect(() => {
     const supabase = createClient();
@@ -93,8 +95,8 @@ export function Navbar() {
             </DropdownMenu>
           ) : (
             <>
-              <Button variant="ghost" size="sm" asChild>
-                <Link href="/login">Log in</Link>
+              <Button variant="ghost" size="sm" onClick={() => openLoginDialog()}>
+                Log in
               </Button>
               <Button size="sm" asChild>
                 <Link href="/signup">Sign up</Link>
@@ -155,8 +157,13 @@ export function Navbar() {
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      <Button variant="outline" size="sm" className="w-full" asChild>
-                        <Link href="/login" onClick={() => setMobileOpen(false)}>Log in</Link>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                        onClick={() => { setMobileOpen(false); openLoginDialog(); }}
+                      >
+                        Log in
                       </Button>
                       <Button size="sm" className="w-full" asChild>
                         <Link href="/signup" onClick={() => setMobileOpen(false)}>Sign up</Link>

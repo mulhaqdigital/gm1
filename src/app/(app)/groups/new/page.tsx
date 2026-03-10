@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { groupUrl } from "@/lib/slugify";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,7 +33,7 @@ export default function NewGroupPage() {
 
     const group = await res.json();
     toast.success("Group created!");
-    router.push(`/groups/${group.id}`);
+    router.push(groupUrl(group.id, group.name));
   }
 
   return (
@@ -62,7 +63,7 @@ export default function NewGroupPage() {
                 placeholder="What is this group about?"
               />
             </div>
-            <div className="flex gap-3 pt-2">
+            <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2">
               <Button type="submit" disabled={loading}>
                 {loading ? "Creating…" : "Create group"}
               </Button>

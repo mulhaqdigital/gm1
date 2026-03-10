@@ -11,9 +11,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { getAvatarColor } from "@/lib/avatar-color";
+import { useLoginDialog } from "@/components/auth/LoginDialogProvider";
 
 export default function ProfilePage() {
   const router = useRouter();
+  const { openLoginDialog } = useLoginDialog();
   const [profile, setProfile] = useState<{ name: string; phone: string; pictureUrl: string } | null>(null);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -23,7 +25,7 @@ export default function ProfilePage() {
   useEffect(() => {
     fetch("/api/profile/me")
       .then((r) => {
-        if (r.status === 401) { router.push("/login"); return null; }
+        if (r.status === 401) { openLoginDialog("/profile"); return null; }
         return r.json();
       })
       .then((data) => {

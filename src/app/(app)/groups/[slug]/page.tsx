@@ -10,28 +10,58 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
-import { Users, FileText } from "lucide-react";
+import { Users, FileText, LayoutGrid, List } from "lucide-react";
+import { ShareButton } from "@/components/ShareButton";
+import { extractUuid, groupUrl, pageUrl } from "@/lib/slugify";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { PageCover } from "@/components/pages/PageCover";
+import { PageTree } from "@/components/pages/PageTree";
 import { LinkPageButton } from "@/components/groups/LinkPageButton";
 import { InviteMemberButton } from "@/components/groups/InviteMemberButton";
 import Image from "next/image";
 import { getAvatarColor, getDiceBearUrl } from "@/lib/avatar-color";
+import { useLoginDialog } from "@/components/auth/LoginDialogProvider";
+
+interface FlatPage { id: string; title: string; pictureUrl?: string | null; parentPageId?: string | null; children?: FlatPage[] }
+
+function buildPageTree(pages: FlatPage[]): FlatPage[] {
+  const map = new Map(pages.map((p) => [p.id, { ...p, children: [] as FlatPage[] }]));
+  const roots: FlatPage[] = [];
+  for (const page of map.values()) {
+    const parent = page.parentPageId ? map.get(page.parentPageId) : null;
+    if (parent) parent.children!.push(page);
+    else roots.push(page);
+  }
+  return roots;
+}
 
 export default function GroupPage() {
-  const { id } = useParams<{ id: string }>();
+  const { slug } = useParams<{ slug: string }>();
+  const id = extractUuid(slug) ?? "";
   const [group, setGroup] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null | undefined>(undefined); // undefined = auth loading
+  const router = useRouter();
+  const { openLoginDialog } = useLoginDialog();
   const [joining, setJoining] = useState(false);
+  const [pagesView, setPagesView] = useState<"grid" | "tree">("grid");
 
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data }) => setCurrentUserId(data.user?.id ?? null));
     fetch(`/api/groups/${id}`)
       .then((r) => r.json())
-      .then(setGroup)
+      .then((data) => {
+        setGroup(data);
+        // Redirect to canonical slug URL if name changed or bare UUID was used
+        if (data?.id && data?.name) {
+          const canonical = groupUrl(data.id, data.name).slice("/groups/".length);
+          if (slug !== canonical) router.replace(groupUrl(data.id, data.name));
+        }
+      })
       .finally(() => setLoading(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const myMembership = group?.memberships?.find((m: any) => m.userId === currentUserId);
@@ -51,6 +81,18 @@ export default function GroupPage() {
     }
     setJoining(false);
   }
+
+  // Auto-join after sign-in redirect
+  useEffect(() => {
+    const autoJoin = new URLSearchParams(window.location.search).get("autoJoin");
+    if (autoJoin !== "1") return;
+    if (currentUserId === undefined || loading) return; // still loading
+    if (!currentUserId) return; // not signed in
+    if (isMember) return; // already a member
+    router.replace(group ? groupUrl(group.id, group.name) : `/groups/${slug}`); // clean URL
+    handleJoin();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUserId, loading]);
 
   async function handleLeave() {
     setJoining(true);
@@ -112,17 +154,29 @@ export default function GroupPage() {
           <Badge variant="secondary" className="w-fit">Admin</Badge>
         )}
 
-        {currentUserId && (
-          isMember ? (
-            <Button variant="outline" size="sm" className="w-full" onClick={handleLeave} disabled={joining}>
-              {joining ? "…" : "Leave group"}
-            </Button>
-          ) : (
-            <Button size="sm" className="w-full" onClick={handleJoin} disabled={joining}>
-              {joining ? "…" : "Join group"}
-            </Button>
-          )
+        {/* Join / Leave */}
+        {currentUserId === undefined ? null : currentUserId === null ? (
+          // Guest — prompt sign-in
+          <Button size="sm" className="w-full" onClick={() => openLoginDialog(`/groups/${slug}?autoJoin=1`)}>
+            Join group
+          </Button>
+        ) : isMember ? (
+          <Button variant="outline" size="sm" className="w-full" onClick={handleLeave} disabled={joining}>
+            {joining ? "…" : "Leave group"}
+          </Button>
+        ) : (
+          <Button size="sm" className="w-full" onClick={handleJoin} disabled={joining}>
+            {joining ? "…" : "Join group"}
+          </Button>
         )}
+
+        {/* Share */}
+        <ShareButton
+          title={group?.name ?? "Group"}
+          description={group?.description}
+          variant="ghost"
+          className="w-full text-muted-foreground justify-start"
+        />
       </aside>
 
       {/* Main content */}
@@ -154,22 +208,43 @@ export default function GroupPage() {
 
         {/* Linked pages */}
         <div>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                Linked pages ({group.pageGroups.length})
-              </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-semibold flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Linked pages ({group.pageGroups?.length ?? 0})
+            </h2>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center border rounded-md overflow-hidden">
+                <button
+                  onClick={() => setPagesView("grid")}
+                  className={`p-1.5 transition-colors ${pagesView === "grid" ? "bg-muted" : "hover:bg-muted/50"}`}
+                  title="Grid view"
+                >
+                  <LayoutGrid className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  onClick={() => setPagesView("tree")}
+                  className={`p-1.5 transition-colors ${pagesView === "tree" ? "bg-muted" : "hover:bg-muted/50"}`}
+                  title="Tree view"
+                >
+                  <List className="h-3.5 w-3.5" />
+                </button>
+              </div>
               <LinkPageButton
                 groupId={id}
                 linkedPages={group.pageGroups.map((pg: any) => ({ id: pg.page.id, title: pg.page.title }))}
               />
             </div>
+          </div>
+
           {group.pageGroups?.length === 0 && (
             <p className="text-sm text-muted-foreground">No pages linked yet.</p>
           )}
+
+          {pagesView === "grid" ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
               {group.pageGroups?.map((pg: any) => (
-                <Link key={pg.page.id} href={`/pages/${pg.page.id}`}>
+                <Link key={pg.page.id} href={pageUrl(pg.page.id, pg.page.title)}>
                   <div className="border rounded-md overflow-hidden hover:border-foreground/30 hover:shadow-sm transition-all bg-card cursor-pointer">
                     <div className="relative w-full aspect-square">
                       {pg.page.pictureUrl ? (
@@ -185,9 +260,15 @@ export default function GroupPage() {
                 </Link>
               ))}
             </div>
-          </div>
+          ) : (
+            <div className="border rounded-lg p-3">
+              <PageTree pages={buildPageTree((group.pageGroups ?? []).map((pg: any) => pg.page))} />
+            </div>
+          )}
+        </div>
 
       </div>
+
     </div>
   );
 }

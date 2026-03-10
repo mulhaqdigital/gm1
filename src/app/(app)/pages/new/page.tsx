@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { pageUrl } from "@/lib/slugify";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -39,7 +40,7 @@ export default function NewPagePage() {
 
     const page = await res.json();
     toast.success("Page created!");
-    router.push(`/pages/${page.id}`);
+    router.push(pageUrl(page.id, page.title));
   }
 
   return (
@@ -73,7 +74,7 @@ export default function NewPagePage() {
               <Label>Label</Label>
               <LabelCombobox value={selectedLabel} onChange={setSelectedLabel} />
             </div>
-            <div className="flex gap-3 pt-2">
+            <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2">
               <Button type="submit" disabled={loading}>
                 {loading ? "Creating…" : "Create page"}
               </Button>

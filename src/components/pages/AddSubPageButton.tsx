@@ -14,7 +14,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plus } from "lucide-react";
+import { Plus, SearchX } from "lucide-react";
 
 type Tab = "new" | "existing";
 
@@ -114,7 +114,9 @@ export function AddSubPageButton({
           New sub-page
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="sm:max-w-md p-0 overflow-hidden">
+
+        <div className="px-6 pt-5 pb-6 space-y-4">
         <DialogHeader>
           <DialogTitle>Add sub-page</DialogTitle>
         </DialogHeader>
@@ -187,7 +189,10 @@ export function AddSubPageButton({
               {loadingPages ? (
                 <p className="text-sm text-muted-foreground py-4 text-center">Loading…</p>
               ) : filtered.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-4 text-center">No pages found.</p>
+                <div className="flex flex-col items-center gap-2 py-6 text-muted-foreground">
+                  <SearchX className="h-7 w-7 opacity-30" />
+                  <p className="text-sm">No pages found</p>
+                </div>
               ) : (
                 filtered.map((p) => (
                   <div
@@ -209,6 +214,7 @@ export function AddSubPageButton({
             </div>
           </div>
         )}
+        </div>
       </DialogContent>
     </Dialog>
   );

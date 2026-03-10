@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { PanelLeft } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { PagesSidebar, type SidebarPage } from "./PagesSidebar";
 
@@ -25,6 +25,7 @@ export function PagesMobileNav({ tree }: { tree: SidebarPage[] }) {
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="w-72 p-6 pt-10">
+        <SheetTitle className="sr-only">Pages navigation</SheetTitle>
         <PagesSidebar tree={tree} />
       </SheetContent>
     </Sheet>

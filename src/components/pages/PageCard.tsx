@@ -3,6 +3,7 @@ import Image from "next/image";
 import { MemberAvatars } from "@/components/groups/MemberAvatars";
 import { PageCover } from "@/components/pages/PageCover";
 import { Badge } from "@/components/ui/badge";
+import { pageUrl } from "@/lib/slugify";
 
 interface Member {
   id: string;
@@ -38,7 +39,7 @@ export function PageCard({ page }: PageCardProps) {
   });
 
   return (
-    <Link href={`/pages/${page.id}`}>
+    <Link href={pageUrl(page.id, page.title)}>
       <div className="border rounded-lg overflow-hidden hover:border-foreground/30 hover:shadow-sm transition-all bg-card cursor-pointer h-full flex flex-col">
         {/* Image top */}
         <div className="relative w-full aspect-square">

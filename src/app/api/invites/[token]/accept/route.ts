@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { groupInvites, groupMemberships } from "@/db/schema";
+import { groupInvites, groupMemberships, groups } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 import { ok, err } from "@/lib/api";
 import { requireAuth } from "@/lib/permissions";
@@ -28,7 +28,12 @@ export async function POST(_req: Request, { params }: { params: Promise<{ token:
       .set({ status: "accepted" })
       .where(eq(groupInvites.id, invite.id));
 
-    return ok({ groupId: invite.groupId });
+    const group = await db.query.groups.findFirst({
+      where: eq(groups.id, invite.groupId),
+      columns: { id: true, name: true },
+    });
+
+    return ok({ groupId: invite.groupId, groupName: group?.name ?? "" });
   } catch (res) {
     if (res instanceof Response) return res;
     console.error("[POST /api/invites/[token]/accept]", res);

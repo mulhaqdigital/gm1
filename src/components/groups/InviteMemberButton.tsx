@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { UserPlus, X, RotateCcw } from "lucide-react";
+import { UserPlus, X, RotateCcw, MailOpen } from "lucide-react";
 
 interface Invite {
   id: string;
@@ -124,7 +124,9 @@ export function InviteMemberButton({ groupId }: { groupId: string }) {
           Invite member
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md p-0 overflow-hidden">
+
+        <div className="px-6 pt-5 pb-6 space-y-4">
         <DialogHeader>
           <DialogTitle>Invite member</DialogTitle>
         </DialogHeader>
@@ -186,7 +188,10 @@ export function InviteMemberButton({ groupId }: { groupId: string }) {
               {loadingInvites ? (
                 <p className="text-sm text-muted-foreground py-6 text-center">Loading…</p>
               ) : invites.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-6 text-center">No pending invites.</p>
+                <div className="flex flex-col items-center gap-2 py-8 text-muted-foreground">
+                  <MailOpen className="h-8 w-8 opacity-30" />
+                  <p className="text-sm">No pending invites</p>
+                </div>
               ) : (
                 invites.map((invite) => (
                   <div key={invite.id} className="flex items-center justify-between px-3 py-2 rounded-md hover:bg-muted">
@@ -225,6 +230,7 @@ export function InviteMemberButton({ groupId }: { groupId: string }) {
             </div>
           </TabsContent>
         </Tabs>
+        </div>
       </DialogContent>
     </Dialog>
   );

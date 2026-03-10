@@ -19,7 +19,17 @@
       "WebFetch(domain:notion-avatars.netlify.app)",
       "Bash(npm list:*)",
       "WebFetch(domain:api.iconify.design)",
-      "WebFetch(domain:icon-sets.iconify.design)"
+      "WebFetch(domain:icon-sets.iconify.design)",
+      "Bash(cd \"D:\\\\Cursor\\\\gm1\" && node -e \"require\\('@radix-ui/react-visually-hidden'\\)\" 2>&1)",
+      "Bash(cd \"D:\\\\Cursor\\\\gm1\" && sed -i 's/        <div className=\"h-1 w-full bg-foreground\" \\\\/>\\\\n//g' src/components/auth/LoginDialog.tsx src/components/groups/InviteMemberButton.tsx src/components/groups/LinkPageButton.tsx src/components/labels/EditLabelDialog.tsx src/components/pages/AddSubPageButton.tsx src/components/pages/EditLabelButton.tsx src/components/pages/ManageGroupsButton.tsx 2>&1; echo done)",
+      "Bash(mv \"D:/Cursor/gm1/src/app/\\(app\\)/pages/[id]\" \"D:/Cursor/gm1/src/app/\\(app\\)/pages/[slug]\" && mv \"D:/Cursor/gm1/src/app/\\(app\\)/groups/[id]\" \"D:/Cursor/gm1/src/app/\\(app\\)/groups/[slug]\")",
+      "Bash(cd D:/Cursor/gm1 && rm -rf .next/types && npx tsc --noEmit 2>&1)",
+      "Bash(ls \"D:/Cursor/gm1/src/app/\\(app\\)/groups/[slug]/\" 2>/dev/null; ls \"D:/Cursor/gm1/src/app/\\(app\\)/pages/[slug]/\" 2>/dev/null)",
+      "Bash(ls -la \"D:/Cursor/gm1/src/app/\\(app\\)/groups/[slug]/\" && ls -la \"D:/Cursor/gm1/src/app/\\(app\\)/pages/[slug]/\")",
+      "Bash(ls \"D:/Cursor/gm1/src/app/\\(app\\)/\")",
+      "Bash(cd \"D:/Cursor/gm1\" && node -e \"console.log\\(require\\('./package.json'\\).dependencies.next\\)\")",
+      "Bash(ls \"D:/Cursor/gm1/src/app/\\(app\\)/pages/\")",
+      "Bash(cd D:/Cursor/gm1 && ls src/app/\\\\\\(app\\\\\\)/groups/\\\\[slug\\\\]/ && ls src/app/\\\\\\(app\\\\\\)/pages/\\\\[slug\\\\]/)"
     ]
   }
 }

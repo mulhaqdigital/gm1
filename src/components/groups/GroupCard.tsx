@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Users } from "lucide-react";
 import { GroupAvatar } from "@/components/groups/GroupAvatar";
+import { groupUrl } from "@/lib/slugify";
 
 interface GroupCardProps {
   group: {
@@ -18,7 +19,7 @@ export function GroupCard({ group }: GroupCardProps) {
   const memberCount = group.memberships?.length ?? 0;
 
   return (
-    <Link href={`/groups/${group.id}`}>
+    <Link href={groupUrl(group.id, group.name)}>
       <div className="border rounded-lg p-4 hover:border-foreground/30 hover:shadow-sm transition-all bg-card cursor-pointer">
         <div className="flex items-start gap-3">
           <GroupAvatar name={group.name} logoUrl={group.logoUrl} className="h-16 w-16" />

@@ -24,6 +24,7 @@ export function EditLabelDialog({ label }: EditLabelDialogProps) {
   const [name, setName] = useState(label.name);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   async function handleRename() {
     if (!name.trim() || name.trim() === label.name) return;
@@ -71,7 +72,7 @@ export function EditLabelDialog({ label }: EditLabelDialogProps) {
   return (
     <>
       <button
-        onClick={() => { setName(label.name); setError(""); setOpen(true); }}
+        onClick={() => { setName(label.name); setError(""); setConfirmDelete(false); setOpen(true); }}
         className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
         aria-label={`Edit label ${label.name}`}
       >
@@ -79,12 +80,14 @@ export function EditLabelDialog({ label }: EditLabelDialogProps) {
       </button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-sm">
+        <DialogContent className="sm:max-w-sm p-0 overflow-hidden">
+
+          <div className="px-6 pt-5 pb-6 space-y-4">
           <DialogHeader>
             <DialogTitle>Edit Label</DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-3 py-2">
+          <div className="space-y-3">
             <div className="space-y-1.5">
               <Label htmlFor="label-name">Name</Label>
               <Input
@@ -93,20 +96,33 @@ export function EditLabelDialog({ label }: EditLabelDialogProps) {
                 onChange={(e) => setName(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleRename()}
                 disabled={loading}
+                autoFocus
               />
             </div>
             {error && <p className="text-sm text-destructive">{error}</p>}
           </div>
 
           <DialogFooter className="flex-row justify-between sm:justify-between gap-2">
-            <Button
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={loading}
-              size="sm"
-            >
-              Delete Label
-            </Button>
+            {confirmDelete ? (
+              <Button
+                variant="destructive"
+                onClick={handleDelete}
+                disabled={loading}
+                size="sm"
+              >
+                {loading ? "Deleting…" : "Confirm delete"}
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                onClick={() => setConfirmDelete(true)}
+                disabled={loading}
+                size="sm"
+                className="text-destructive hover:text-destructive"
+              >
+                Delete
+              </Button>
+            )}
             <div className="flex gap-2">
               <Button variant="outline" onClick={() => setOpen(false)} disabled={loading} size="sm">
                 Cancel
@@ -116,6 +132,7 @@ export function EditLabelDialog({ label }: EditLabelDialogProps) {
               </Button>
             </div>
           </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </>

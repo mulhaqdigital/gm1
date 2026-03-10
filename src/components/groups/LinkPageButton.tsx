@@ -13,7 +13,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Link2, Unlink, Plus } from "lucide-react";
+import { Link2, Unlink, Plus, FileText, SearchX } from "lucide-react";
 
 interface PageOption {
   id: string;
@@ -135,7 +135,9 @@ export function LinkPageButton({
           Link page
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md p-0 overflow-hidden">
+
+        <div className="px-6 pt-5 pb-6 space-y-4">
         <DialogHeader>
           <DialogTitle>Manage linked pages</DialogTitle>
         </DialogHeader>
@@ -157,7 +159,10 @@ export function LinkPageButton({
           <TabsContent value="linked">
             <div className="max-h-64 overflow-y-auto space-y-1 mt-2">
               {linked.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-6 text-center">No pages linked yet.</p>
+                <div className="flex flex-col items-center gap-2 py-8 text-muted-foreground">
+                  <FileText className="h-8 w-8 opacity-30" />
+                  <p className="text-sm">No pages linked yet</p>
+                </div>
               ) : (
                 linked.map((p) => (
                   <div key={p.id} className="flex items-center justify-between px-3 py-2 rounded-md hover:bg-muted">
@@ -190,7 +195,10 @@ export function LinkPageButton({
               {loadingPages ? (
                 <p className="text-sm text-muted-foreground py-4 text-center">Loading…</p>
               ) : filtered.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-4 text-center">No pages found.</p>
+                <div className="flex flex-col items-center gap-2 py-6 text-muted-foreground">
+                  <SearchX className="h-7 w-7 opacity-30" />
+                  <p className="text-sm">No pages found</p>
+                </div>
               ) : (
                 filtered.map((p) => (
                   <div key={p.id} className="flex items-center justify-between px-3 py-2 rounded-md hover:bg-muted">
@@ -229,6 +237,7 @@ export function LinkPageButton({
             </Button>
           </TabsContent>
         </Tabs>
+        </div>
       </DialogContent>
     </Dialog>
   );

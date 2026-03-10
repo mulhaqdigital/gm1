@@ -31,7 +31,8 @@ export async function proxy(request: NextRequest) {
   const isProtected = PROTECTED_PATHS.some((p) => pathname.startsWith(p));
 
   if (isProtected && !user) {
-    const loginUrl = new URL("/login", request.url);
+    const loginUrl = new URL("/", request.url);
+    loginUrl.searchParams.set("showLogin", "1");
     loginUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(loginUrl);
   }
