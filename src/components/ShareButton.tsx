@@ -24,10 +24,9 @@ export function ShareButton({
 
     if (navigator.share) {
       try {
+        const text = [title, url, description].filter(Boolean).join("\n");
         await navigator.share({
-          title,
-          text: description ?? title,
-          url,
+          text,
         });
         return;
       } catch {
