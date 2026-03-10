@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Navbar } from "@/components/layout/Navbar";
+import { Navbar } from "@/components/layout/NavbarClient";
 import { Footer } from "@/components/layout/Footer";
 import { PageCard } from "@/components/pages/PageCard";
 import { db } from "@/db";
