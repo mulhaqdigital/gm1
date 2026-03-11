@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { db } from "@/db";
 import { PageCard } from "@/components/pages/PageCard";
 import { EditLabelDialog } from "@/components/labels/EditLabelDialog";
@@ -63,7 +65,7 @@ export default async function PagesPage() {
                 </h2>
                 {section.label && <EditLabelDialog label={section.label} />}
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              <div className="columns-2 sm:columns-3 lg:columns-4 gap-4">
                 {section.pages.map((page) => (
                   <PageCard key={page.id} page={page} />
                 ))}

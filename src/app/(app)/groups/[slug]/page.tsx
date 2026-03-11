@@ -10,7 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
-import { Users, FileText, LayoutGrid, List } from "lucide-react";
+import { Users, FileText, LayoutGrid, List, Settings, Pencil, LogOut, Trash2 } from "lucide-react";
 import { ShareButton } from "@/components/ShareButton";
 import { extractUuid, groupUrl, pageUrl } from "@/lib/slugify";
 import Link from "next/link";
@@ -19,6 +19,14 @@ import { PageCover } from "@/components/pages/PageCover";
 import { PageTree } from "@/components/pages/PageTree";
 import { LinkPageButton } from "@/components/groups/LinkPageButton";
 import { InviteMemberButton } from "@/components/groups/InviteMemberButton";
+import { EditGroupDialog } from "@/components/groups/EditGroupDialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import Image from "next/image";
 import { getAvatarColor, getDiceBearUrl } from "@/lib/avatar-color";
 import { useLoginDialog } from "@/components/auth/LoginDialogProvider";
@@ -46,6 +54,7 @@ export default function GroupPage() {
   const { openLoginDialog } = useLoginDialog();
   const [joining, setJoining] = useState(false);
   const [pagesView, setPagesView] = useState<"grid" | "tree">("grid");
+  const [editOpen, setEditOpen] = useState(false);
 
   useEffect(() => {
     const supabase = createClient();
@@ -66,6 +75,7 @@ export default function GroupPage() {
 
   const myMembership = group?.memberships?.find((m: any) => m.userId === currentUserId);
   const isMember = !!myMembership;
+  const isCreator = group?.createdBy === currentUserId;
 
   async function handleJoin() {
     setJoining(true);
@@ -93,6 +103,17 @@ export default function GroupPage() {
     handleJoin();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUserId, loading]);
+
+  async function handleDelete() {
+    if (!confirm(`Delete "${group.name}"? This cannot be undone.`)) return;
+    const res = await fetch(`/api/groups/${id}`, { method: "DELETE" });
+    if (res.ok) {
+      toast.success("Group deleted");
+      router.push("/groups");
+    } else {
+      toast.error("Failed to delete group");
+    }
+  }
 
   async function handleLeave() {
     setJoining(true);
@@ -134,7 +155,46 @@ export default function GroupPage() {
     <div className="flex flex-col md:flex-row gap-6 md:items-start">
       {/* Sidebar */}
       <aside className="w-full md:w-56 shrink-0 rounded-xl border p-5 space-y-4 md:sticky md:top-20">
-        <GroupAvatar name={group.name} logoUrl={group.logoUrl} className="h-14 w-14" rounded="xl" />
+
+        {/* Header row: avatar + gear */}
+        <div className="flex items-start justify-between">
+          <GroupAvatar name={group.name} logoUrl={group.logoUrl} className="h-14 w-14" rounded="xl" />
+          {currentUserId && (isMember || isCreator) && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
+                  <Settings className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-44">
+                {myMembership?.role === "admin" && (
+                  <DropdownMenuItem onClick={() => setEditOpen(true)}>
+                    <Pencil className="h-4 w-4 mr-2" />
+                    Edit group
+                  </DropdownMenuItem>
+                )}
+                {isMember && !isCreator && (
+                  <DropdownMenuItem onClick={handleLeave} disabled={joining}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Leave group
+                  </DropdownMenuItem>
+                )}
+                {isCreator && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={handleDelete}
+                      className="text-destructive focus:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete group
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
 
         <div>
           <h1 className="font-bold text-lg leading-tight">{group.name}</h1>
@@ -154,21 +214,16 @@ export default function GroupPage() {
           <Badge variant="secondary" className="w-fit">Admin</Badge>
         )}
 
-        {/* Join / Leave */}
+        {/* Join — guests only */}
         {currentUserId === undefined ? null : currentUserId === null ? (
-          // Guest — prompt sign-in
           <Button size="sm" className="w-full" onClick={() => openLoginDialog(`/groups/${slug}?autoJoin=1`)}>
             Join group
           </Button>
-        ) : isMember ? (
-          <Button variant="outline" size="sm" className="w-full" onClick={handleLeave} disabled={joining}>
-            {joining ? "…" : "Leave group"}
-          </Button>
-        ) : (
+        ) : !isMember ? (
           <Button size="sm" className="w-full" onClick={handleJoin} disabled={joining}>
             {joining ? "…" : "Join group"}
           </Button>
-        )}
+        ) : null}
 
         {/* Share */}
         <ShareButton
@@ -178,6 +233,17 @@ export default function GroupPage() {
           className="w-full text-muted-foreground justify-start"
         />
       </aside>
+
+      {/* Edit dialog */}
+      {editOpen && (
+        <EditGroupDialog
+          groupId={id}
+          initial={{ name: group.name, description: group.description, logoUrl: group.logoUrl }}
+          open={editOpen}
+          onOpenChange={setEditOpen}
+          onSaved={(updated) => setGroup((g: any) => ({ ...g, ...updated }))}
+        />
+      )}
 
       {/* Main content */}
       <div className="flex-1 min-w-0 space-y-8">

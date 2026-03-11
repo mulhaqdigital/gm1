@@ -40,7 +40,7 @@ export function PageCard({ page }: PageCardProps) {
 
   return (
     <Link href={pageUrl(page.id, page.title)}>
-      <div className="border rounded-lg overflow-hidden hover:border-foreground/30 hover:shadow-sm transition-all bg-card cursor-pointer h-full flex flex-col">
+      <div className="break-inside-avoid mb-4 border rounded-lg overflow-hidden hover:border-foreground/30 hover:shadow-sm transition-all bg-card cursor-pointer flex flex-col">
         {/* Image top */}
         <div className="relative w-full aspect-square">
           {page.pictureUrl ? (
@@ -60,7 +60,7 @@ export function PageCard({ page }: PageCardProps) {
             <p className="text-xs text-muted-foreground line-clamp-2">{page.description}</p>
           )}
           {allMembers.length > 0 && (
-            <div className="mt-auto pt-2">
+            <div className="pt-2">
               <MemberAvatars members={allMembers} max={6} />
             </div>
           )}

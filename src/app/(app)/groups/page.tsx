@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { db } from "@/db";
 import { groups } from "@/db/schema";
 import { ilike, or, desc } from "drizzle-orm";

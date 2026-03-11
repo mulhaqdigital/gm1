@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { db } from "@/db";
 import { groupMemberships, pageGroups, pages } from "@/db/schema";
 import { eq, inArray, isNull } from "drizzle-orm";

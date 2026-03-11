@@ -51,8 +51,16 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   try {
     const { id } = await params;
     const userId = await requireAuth();
-    const [admin, siteAdmin] = await Promise.all([isGroupAdmin(userId, id), isSiteAdmin(userId)]);
-    if (!admin && !siteAdmin) return err("Forbidden", 403);
+
+    const group = await db.query.groups.findFirst({
+      where: eq(groups.id, id),
+      columns: { createdBy: true },
+    });
+    if (!group) return err("Group not found", 404);
+
+    const siteAdmin = await isSiteAdmin(userId);
+    const isCreator = group.createdBy === userId;
+    if (!isCreator && !siteAdmin) return err("Forbidden", 403);
 
     await db.delete(groups).where(eq(groups.id, id));
     return ok({ success: true });
