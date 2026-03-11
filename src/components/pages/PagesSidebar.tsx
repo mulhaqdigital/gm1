@@ -127,9 +127,8 @@ export function PagesSidebar({ tree }: { tree: SidebarPage[] }) {
       {tree.length === 0 ? (
         <p className="text-xs text-muted-foreground px-1">No pages yet.</p>
       ) : (
-        /* Fade-out mask at the bottom */
         <div className="relative">
-          <ul className="space-y-0.5">
+          <ul className="space-y-0.5 overflow-y-auto max-h-[calc(100vh-8rem)] pb-8">
             {tree.map((page) => (
               <TreeNode key={page.id} page={page} activeId={activeId} />
             ))}
