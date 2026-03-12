@@ -20,7 +20,6 @@ import { Menu } from "lucide-react";
 import { useLoginDialog } from "@/components/auth/LoginDialogProvider";
 
 const navLinks = [
-  { href: "/dashboard", label: "Dashboard" },
   { href: "/groups", label: "Groups" },
   { href: "/pages", label: "Pages" },
 ];
@@ -54,6 +53,11 @@ export function Navbar() {
 
         {/* Desktop nav links */}
         <div className="hidden md:flex items-center gap-4 flex-1">
+          {user && (
+            <Button size="sm" className="bg-black text-white hover:bg-black/80 rounded-full dark:bg-white dark:text-black h-6 text-xs" asChild>
+              <Link href="/dashboard">Dashboard</Link>
+            </Button>
+          )}
           {navLinks.map((link) => (
             <Link
               key={link.href}
@@ -122,6 +126,11 @@ export function Navbar() {
                   </Link>
                 </div>
                 <nav className="flex flex-col p-4 gap-1 flex-1">
+                  {user && (
+                    <Button size="sm" className="bg-black text-white hover:bg-black/80 rounded-full dark:bg-white dark:text-black h-6 text-xs w-full mb-1" asChild>
+                      <Link href="/dashboard" onClick={() => setMobileOpen(false)}>Dashboard</Link>
+                    </Button>
+                  )}
                   {navLinks.map((link) => (
                     <Link
                       key={link.href}
